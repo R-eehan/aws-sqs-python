@@ -51,8 +51,22 @@ def create_messages(queue_url):
             print(f"ParamValidationError: {e}")
         except ClientError as e:
             print(f"ClientError: {e}")
-            
 
+#For creating messages in SQS via SNS
+sns = boto3.client('sns', region_name='us-east-1')
+def create_messages():
+    try:
+        data = sns.publish(
+            TargetARN = 'arn:aws:sns:us-east-1:801868729718:backspace-lab',  #TargetARN is the SNS topic we're sending a message to. AWS SNS will in turn publish this message to its subscribers, which in this case is our SQS queue.
+            Subject = 'SNS Message 2',
+            Message = 'This is another message from AWS SNS!'
+            )
+        return data['MessageId']
+    except ParamValidationError as e:
+        print(f"ParamValidationError: {e}")
+    except ClientError as e:
+        print(f"ClientError: {e}")
+            
 #Create 50 SQS messages in batches
 def create_messages_in_batches(queue_url):
     TempMessages = []
@@ -124,6 +138,9 @@ def main():
 
     # create_messages_in_batches(sqs_queue_url)
     # print("Successfully created 50 messages in batches!")
+
+    create_messages()
+    print("Successfully published a message from SNS!")
     
     receive_messages(sqs_queue_url)
     print("Received")
